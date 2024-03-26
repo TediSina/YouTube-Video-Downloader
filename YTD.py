@@ -8,6 +8,23 @@ import ffmpeg
 import threading
 
 def submitUrl():
+    """
+    Submits a YouTube video URL for downloading.
+
+    This function retrieves the URL entered by the user in the `urlEntryVar` variable and assigns it to the `url` global variable.
+    It then removes all the GUI elements related to quality, save path, filename, download information, progress bar, and output.
+
+    Next, it attempts to create a `YouTube` object using the submitted URL. If an error occurs during this process, an error message is displayed and the function ends.
+    If the URL is valid, the function retrieves the highest available quality stream for the video. Based on the resolution of the highest quality stream, it sets the `qualityChoices` list accordingly.
+
+    Finally, the function grids the GUI elements related to quality selection, save path selection, filename input, download information, and download button.
+
+    Parameters:
+    None
+
+    Returns:
+    None
+    """
     urlOutput.config(text="")
     global url
     url = urlEntryVar.get()
@@ -118,6 +135,9 @@ def submitUrl():
         downloadOutput.grid(row=18, pady=5)
 
 def submitQuality():
+    """
+    A function to submit the quality setting. It clears the qualityOutput, checks the qualityVar, selects the appropriate stream based on the qualityVar, and updates the qualityOutput text accordingly.
+    """
     qualityOutput.config(text="")
     if qualityVar.get() != "":
         print(qualityVar.get())
@@ -131,16 +151,36 @@ def submitQuality():
         qualityOutput.config(text="Please choose a quality setting.", fg="red")
 
 def openLocation():
+    """
+    A function that opens a file dialog to select a directory, then displays the selected path in a specified text field. 
+    No parameters are passed to the function. No return value.
+    """
     saveOutput.config(text="")
     openLocation.savePath = filedialog.askdirectory()
     saveOutput.config(text=openLocation.savePath, fg="green")
 
 def submitFilename():
+    """
+    Function to submit a filename. Clears the text in filenameOutput widget,
+    sets the chosen filename to the value in filenameEntryVar, and displays
+    a success message in filenameOutput widget with green text color.
+    """
     filenameOutput.config(text="")
     submitFilename.chosenFilename = filenameEntryVar.get()
     filenameOutput.config(text="Filename submitted successfully!", fg="green")
 
 def on_progress(stream, chunk, bytes_remaining):
+    """
+    Updates the progress of a download by calculating the percentage of completion and updating the download output and progress bar.
+
+    Parameters:
+    - stream: The stream object representing the download.
+    - chunk: The chunk of data that has been downloaded.
+    - bytes_remaining: The number of bytes remaining to be downloaded.
+
+    Returns:
+    None
+    """
     total_size = stream.filesize
     bytes_downloaded = total_size - bytes_remaining 
     percentage_of_completion = bytes_downloaded / total_size * 100
@@ -155,6 +195,9 @@ def on_progress(stream, chunk, bytes_remaining):
     downloadProgressBar.update_idletasks()
 
 def on_progress_audio(stream, chunk, bytes_remaining):
+    """
+    A function to handle audio download progress with parameters stream, chunk, and bytes_remaining.
+    """
     total_size = stream.filesize
     bytes_downloaded = total_size - bytes_remaining 
     percentage_of_completion = bytes_downloaded / total_size * 100
@@ -165,6 +208,22 @@ def on_progress_audio(stream, chunk, bytes_remaining):
     downloadProgressBar.update_idletasks()
 
 def downloadVideo():
+    """
+    Downloads a video based on the user's selected quality and save path.
+    
+    This function checks if a save path has been selected by the user. If a save path is selected, it checks the user's selected quality.
+    If the quality is either "720p" or "360p", it attempts to download the video using the selected quality and saves it as an mp4 file with the chosen filename.
+    If the quality is "144p", it downloads the video in 3gpp format. If the quality is "Audio only", it downloads the audio in mp4 format and converts it to mp3 format using ffmpeg.
+    If the quality is none of the above, it downloads the video without audio and concatenates it with the audio. The final video is saved as an mp4 file with the chosen filename.
+    
+    If no save path is selected, it displays an error message asking the user to select a valid path.
+    
+    Parameters:
+    None
+    
+    Returns:
+    None
+    """
     if openLocation.savePath != None:
         if qualityVar.get() == "720p" or qualityVar.get() == "360p":
             try:
